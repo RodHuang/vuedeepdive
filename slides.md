@@ -26,7 +26,6 @@ title: Vue 3 Deep Dive
 - Render
 - Reactive
 - Mini Vue
-- Composition Api
 
 ---
 
