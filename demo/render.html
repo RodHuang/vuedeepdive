@@ -1,0 +1,112 @@
+<div id="app" />
+<script>
+  function h(tag, props, children) {
+    return {
+      tag,
+      props,
+      children
+    }
+  }
+
+  function mount(vnode, container) {
+    const el = vnode.el = document.createElement(vnode.tag) // save old el for patch
+    if (vnode.props) { // props
+      for (const key in vnode.props) {
+        const value = vnode.props[key];
+        el.setAttribute(key, value) // set dom attributes, skip properties and listeners for simplicity
+      }
+    }
+    // children，這裡預設children為字串或是 vNode array，實際上可以是 ['hello', h('span')]
+    if (vnode.children) {
+      if (typeof vnode.children === 'string') { // 如果是字串，直接修改 textContent
+        el.textContent = vnode.children
+      } else {
+        vnode.children.forEach(child => { 
+          mount(child, el)
+        })
+      }
+    }
+    container.appendChild(el)
+  }
+
+  function patch(n1, n2) {
+     // 優化在於如何減少dom api calls，如果我們有compiler 提示，甚至可以跳過整段
+    if (n1.tag === n2.tag) { // 如果兩個node是相同類型的
+      const el = n2.el = n1.el // 拿到舊的node的 DOM，讓他一直傳下去
+      // props
+      const oldProps = n1.props || {}
+      const newProps = n2.props || {}
+      for (const key in newProps) { // iterate新的屬性，如果和舊的不相等，那麼就設置新的屬性
+        const oldValue = oldProps[key]
+        const newValue = newProps[key]
+        if (newValue !== oldValue) {
+          el.setAttribute(key, newValue)
+        }
+      }
+      for (const key in oldProps) { // iterate舊的屬性，如果發現新的沒有這個屬性，則刪除這個屬性
+        if (!(key in newProps)) {
+          el.removeAttribute(key)
+        }
+      }
+      // children
+      const oldChildren = n1.children
+      const newChildren = n2.children
+      if (typeof newChildren === 'string') {
+        if (typeof oldChildren === 'string') { // 新的和舊的children都是 string 類型
+          if (newChildren !== oldChildren) {
+            el.textContent = newChildren  // 直接替換 textContent
+          }
+        } else {
+          // 新的children是text，但是舊的不是，直接設置 textContent，這樣會覆蓋舊的 dom node
+          el.textContent = newChildren 
+        }
+      } else {
+        if (typeof oldChildren === 'string') {
+          el.innerText = '' // 新children是vnode array，但是舊的是textContent，清空textContent
+          newChildren.forEach(child => { // mount所有children nodes
+            mount(child, el)
+          })
+        } else { // 新舊children都是vnode array
+        // vue 有兩種diff方式，一種是用v-for key，另一種是直接比較兩個array，這裡直接比較，效率可能較差，不過較為直觀
+          const commonLength = Math.min(oldChildren.length, newChildren.length)
+          for (let i = 0; i < commonLength; i++) {
+            patch(oldChildren[i], newChildren[i])
+          }
+          if (newChildren.length > oldChildren.length) {
+            // 如果新children 更長，將新children多餘的node mount到 DOM 上
+            newChildren.slice(oldChildren.length).forEach(child => { 
+              mount(child, el)
+            })
+          } else if (newChildren.length < oldChildren.length) {
+            // 如果舊children更長，將多餘的node從 dom上移除
+            oldChildren.slice(newChildren.length).forEach(child => { 
+              el.removeChild(child.el)
+            })
+          }
+        }
+      }
+    } else {
+        // 如果兩個node是不同類型的，則需要用新的 node 替換舊的 node，這裡省略
+    }
+  }
+
+  const vdom = h('div', {class: 'red'}, [
+    h('span', null, 'hello')
+  ])
+
+  mount(vdom, document.getElementById('app'))
+
+  // const vdom2 = h('div', {class: 'green'}, [
+  //   h('span', null, 'world')
+  // ])
+
+  // patch(vdom, vdom2)
+</script>
+<style>
+  .red {
+    color: red;
+  }
+  .green {
+    color: green;
+  }
+</style>
