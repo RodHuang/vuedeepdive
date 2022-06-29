@@ -2,7 +2,7 @@
   "name": "vuedeepdive",
   "private": true,
   "scripts": {
-    "build": "slidev build",
+    "build": "slidev build --base /vuedeepdive/",
     "dev": "slidev --open",
     "export": "slidev export"
   },
