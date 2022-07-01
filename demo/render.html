@@ -90,14 +90,14 @@
     }
   }
 
-  const vdom = h('div', {class: 'red'}, [
-    h('span', null, 'hello')
+  const vdom = h('div', null, [
+    h('span', {class: 'red'}, 'hello'),  h('span', {class: 'red'}, 'hello')
   ])
 
   mount(vdom, document.getElementById('app'))
 
   // const vdom2 = h('div', {class: 'green'}, [
-  //   h('span', null, 'world')
+  //   h('span', {class: 'red'}, 'hello'), h('span', {class: 'green'}, 'world')
   // ])
 
   // patch(vdom, vdom2)

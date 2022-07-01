@@ -228,7 +228,7 @@ const Stack = {
 
 # Render API
 
-```html {9-12|9-14|9-18|9-20|all}
+```html {1-5|9-12|9-14|9-18|9-20|all}
 <div id="app"></div>
 
 <script>
@@ -295,7 +295,7 @@ function patch(n1, n2) {
   // 優化在於如何減少dom api calls，如果我們有compiler 提示，甚至可以跳過整段
   if (n1.tag === n2.tag) { // 如果兩個node是相同類型的
     const el = n2.el = n1.el // 拿到舊的node的 DOM，讓他一直傳下去
-    // props
+    // 處理 props
     const oldProps = n1.props || {}
     const newProps = n2.props || {}
     for (const key in newProps) { // iterate新的屬性，如果和舊的不相等，那麼就設置新的屬性
@@ -310,10 +310,10 @@ function patch(n1, n2) {
         el.removeAttribute(key)
       }
     }
-    // children
+    // 處理 children
     const oldChildren = n1.children
     const newChildren = n2.children
-    if (typeof newChildren === 'string') {
+    if (typeof newChildren === 'string') { // 新的是字串
       if (typeof oldChildren === 'string') { // 新的和舊的children都是 string 類型
         if (newChildren !== oldChildren) {
           el.textContent = newChildren  // 直接替換 textContent
@@ -322,8 +322,8 @@ function patch(n1, n2) {
         // 新的children是text，但是舊的不是，直接設置 textContent，這樣會覆蓋舊的 dom node
         el.textContent = newChildren 
       }
-    } else {
-      if (typeof oldChildren === 'string') {
+    } else { // 新的是 vnode array
+      if (typeof oldChildren === 'string') { // 新的是 vnode array，舊的是字串
         el.innerHtml = '' // 新children是vnode array，但是舊的是textContent
         newChildren.forEach(child => { // mount所有children nodes
           mount(child, el)

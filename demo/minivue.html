@@ -64,8 +64,8 @@ function mount(vnode, container) {
   if (vnode.props) { // props
     for (const key in vnode.props) {
       const value = vnode.props[key];
-      // if (key.startsWith('on')) {
-      //   el.addEventListener(key.slice(2).toLocaleLowerCase(), value)
+    //   if (key.startsWith('on')) {
+    //     el.addEventListener(key.slice(2).toLocaleLowerCase(), value)
       // } else {
         el.setAttribute(key, value) // set dom attributes, skip properties and listeners for simplicity
       // }
