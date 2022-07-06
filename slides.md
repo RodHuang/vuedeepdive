@@ -183,6 +183,11 @@ Stack component
 
 # Render
 ## Render Function
+
+<div class="flex">
+<div>
+<Transform :scale="0.65">
+
 ```js
 const {h, createApp} = Vue
 // Stack component
@@ -202,7 +207,31 @@ const Stack = {
 }
 ```
 
-<Transform :scale="0.6">
+```html
+<template>
+  <div class="stack">
+    <div v-for="child in children" :key="child" :class="`m-${size}`">
+      <component :is="child" />
+    </div>
+  </div>
+</template>
+<script>
+import { defineComponent, h } from 'vue';
+
+export default defineComponent({
+  props: ['size'],
+  setup(_, { slots }) {
+    return { children: slots.default?.() ?? [] };
+  },
+})
+</script>
+```
+
+</Transform>
+</div>
+<div>
+
+```js
 <Stack size="4">
   <div>hello</div>
   <Stack size="4">
@@ -210,7 +239,73 @@ const Stack = {
     <div>hello</div>
   </Stack>
 </Stack>
-</Transform>
+```
+
+<Stack size="4">
+  <div>hello</div>
+  <Stack size="4">
+    <div>hello</div>
+    <div>hello</div>
+  </Stack>
+</Stack></div>
+</div>
+
+---
+
+
+<div class="flex">
+<div class="mr-3">
+Template
+
+```html
+<template>
+  <h1 v-if="level === 1">
+    <slot></slot>
+  </h1>
+  <h2 v-else-if="level === 2">
+    <slot></slot>
+  </h2>
+  <h3 v-else-if="level === 3">
+    <slot></slot>
+  </h3>
+  <h4 v-else-if="level === 4">
+    <slot></slot>
+  </h4>
+  <h5 v-else-if="level === 5">
+    <slot></slot>
+  </h5>
+  <h6 v-else-if="level === 6">
+    <slot></slot>
+  </h6>
+</template>
+<script>
+  defineComponent({
+    props: ['level']
+  })
+</script>
+
+```
+
+</div>
+<div>
+Render function
+
+```html
+<script>
+  defineComponent({
+    props: ['level'],
+    render() {
+      const { h } = Vue;
+      return h(`h${this.level}`, {}, this.$slots.default());
+    },
+  })
+</script>
+
+```
+
+
+</div>
+</div>
 
 ---
 
@@ -228,7 +323,7 @@ const Stack = {
 
 # Render API
 
-```html {1-5|9-12|9-14|9-18|9-20|all}
+```html {1-8,22|9-12|9-14|9-18|9-20|all}
 <div id="app"></div>
 
 <script>
@@ -294,7 +389,7 @@ function mount(vnode, container) {
 function patch(n1, n2) {
   // 優化在於如何減少dom api calls，如果我們有compiler 提示，甚至可以跳過整段
   if (n1.tag === n2.tag) { // 如果兩個node是相同類型的
-    const el = n2.el = n1.el // 拿到舊的node的 DOM，讓他一直傳下去
+    const el = n2.el = n1.el // 拿到舊的node，讓他一直傳下去
     // 處理 props
     const oldProps = n1.props || {}
     const newProps = n2.props || {}
@@ -466,7 +561,7 @@ dep.notify() // change
 
 <Transform :scale="0.74">
 
-```js {5,7,10,11,14|5,7,9,10,11,12,14|5,7-14|33-37}
+```js {5,7,10,11,14|5,7,9,10,11,12,14|5,7-14|33-37|all}
 let activeEffect
 class Dep {
   constructor(value) {

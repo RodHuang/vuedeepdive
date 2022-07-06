@@ -1,6 +1,5 @@
-
 <script>
-import { defineComponent, h } from "vue";
+import { defineComponent, h, onMounted, ref } from "vue";
 
 export default defineComponent({
   props: ['size'],
@@ -14,7 +13,7 @@ export default defineComponent({
           child
       ])
     }))
-  }
+  },
 })
 </script>
 <style>

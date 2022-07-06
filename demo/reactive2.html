@@ -47,29 +47,28 @@ const reactiveHandlers = {
   }, // has(), ownKeys()...
 }
 
-function reactive(raw) {
-  return new Proxy(raw, reactiveHandlers)
-}
-
-
 // function reactive(raw) {
-//   Object.keys(raw).forEach(key => {
-//     const dep = new Dep();
-//     let value = raw[key];
-
-//     Object.defineProperty(raw, key, {
-//       get() {
-//         dep.depend();
-//         return value;
-//       },
-//       set(newValue) {
-//         value = newValue;
-//         dep.notify();
-//       }
-//     })
-//   })
-//   return raw
+//   return new Proxy(raw, reactiveHandlers)
 // }
+
+function reactive(raw) {
+  Object.keys(raw).forEach(key => {
+    const dep = new Dep();
+    let value = raw[key];
+
+    Object.defineProperty(raw, key, {
+      get() {
+        dep.depend();
+        return value;
+      },
+      set(newValue) {
+        value = newValue;
+        dep.notify();
+      }
+    })
+  })
+  return raw
+}
 function watchEffect(effect) {
   activeEffect = effect
   effect()
@@ -81,9 +80,13 @@ const state = reactive({
 })
 
 watchEffect(() => {
-  console.log(state.newKey)
+  console.log(state.count)
 });
 
 state.count++
-state.newKey = 'newKey'
+
+// watchEffect(() => {
+//   console.log(state.name)
+// });
+// state.name = 'Trump'
 </script>
